@@ -9,17 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+   public function up(): void
+{
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->string('nis')->unique(); // NIS wajib diisi
+        $table->string('email')->unique()->nullable(); // UBAH JADI NULLABLE
+        $table->timestamp('email_verified_at')->nullable();
+        $table->string('password');
+        $table->enum('role', ['admin', 'voter'])->default('voter');
+        $table->boolean('status_pilih')->default(false);
+        $table->rememberToken();
+        $table->timestamps();
+    });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

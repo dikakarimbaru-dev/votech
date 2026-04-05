@@ -14,6 +14,19 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                // Kita daftarkan warna kustom untuk Votech Skanawa
+                'navy': {
+                    DEFAULT: '#1B365D',
+                    light: '#2E5A9E',
+                    dark: '#0F213F',
+                },
+                'skyblue': {
+                    DEFAULT: '#0EA5E9',
+                    light: '#7DD3FC',
+                    dark: '#0369A1',
+                }
+            }
         },
     },
 
