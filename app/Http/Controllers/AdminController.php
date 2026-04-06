@@ -35,63 +35,41 @@ class AdminController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'nama_ketua' => 'required|string|max:255',
-            'nama_wakil' => 'required|string|max:255',
-            'nomor_urut' => 'required|integer|unique:candidates',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'visi' => 'required',
-            'misi' => 'required',
-        ]);
+{
+   $request->validate([
+    'nama_ketua' => 'required|string|max:255',
+    'nama_wakil' => 'required|string|max:255',
+    'nomor_urut' => 'required|integer|unique:candidates,nomor_urut',
+    'foto'       => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', 
+    'visi'       => 'required',
+    'misi'       => 'required',
+]);
 
-        $path = null;
-        if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('candidates', 'public');
-        }
+    // LOGIC PENYELAMAT: Pastikan folder tujuan ada
+    if (!Storage::disk('public')->exists('candidates')) {
+        Storage::disk('public')->makeDirectory('candidates');
+    }
 
+    if ($request->hasFile('foto')) {
+        // Gunakan storePublicly agar file langsung bisa diakses publik
+        $path = $request->file('foto')->store('candidates', 'public');
+        
         Candidate::create([
             'nama_ketua' => $request->nama_ketua,
             'nama_wakil' => $request->nama_wakil,
             'nomor_urut' => $request->nomor_urut,
-            'visi' => $request->visi,
-            'misi' => $request->misi,
-            'foto' => $path,
+            'visi'       => $request->visi,
+            'misi'       => $request->misi,
+            'foto'       => $path,
         ]);
 
-        return redirect()->route('admin.candidates.index')->with('success', 'Kandidat berhasil ditambahkan!');
+        return redirect()->route('admin.candidates.index')->with('success', 'Kandidat Berhasil Masuk Database!');
     }
 
-    public function edit($id)
-    {
-        $candidate = Candidate::findOrFail($id);
-        return view('admin.candidates.form', compact('candidate'));
-    }
+    return back()->withInput()->withErrors(['foto' => 'File foto tidak terdeteksi oleh sistem.']);
+}
 
-    public function update(Request $request, $id)
-    {
-        $candidate = Candidate::findOrFail($id);
-        
-        $request->validate([
-            'nama_ketua' => 'required|string|max:255',
-            'nama_wakil' => 'required|string|max:255',
-            'nomor_urut' => 'required|integer|unique:candidates,nomor_urut,'.$id,
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'visi' => 'required',
-            'misi' => 'required',
-        ]);
-
-        $data = $request->only(['nama_ketua', 'nama_wakil', 'nomor_urut', 'visi', 'misi']);
-
-        if ($request->hasFile('foto')) {
-            if ($candidate->foto) Storage::disk('public')->delete($candidate->foto);
-            $data['foto'] = $request->file('foto')->store('candidates', 'public');
-        }
-
-        $candidate->update($data);
-
-        return redirect()->route('admin.candidates.index')->with('success', 'Data Paslon berhasil diperbarui!');
-    }
+    // Fitur Edit & Update DIHAPUS untuk integritas data sesuai permintaan user
 
     public function destroy($id)
     {
@@ -101,6 +79,6 @@ class AdminController extends Controller
         }
         $candidate->delete();
 
-        return back()->with('success', 'Kandidat berhasil dihapus!');
+        return back()->with('success', 'Kandidat Berhasil Dihapus!');
     }
-}
+}    
